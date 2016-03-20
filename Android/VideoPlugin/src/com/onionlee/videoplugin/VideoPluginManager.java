@@ -16,7 +16,7 @@ public class VideoPluginManager {
 			MediaStore.Video.Media.DATA, MediaStore.Video.Media.DURATION };
 	final public static String[] thumbColumns = { MediaStore.Video.Thumbnails.DATA };
 
-	public static void GetVideoFilePaths() {
+	public static void LoadVideoFileInfos() {
 		ArrayList<VideoInfoDto> videoInfoDtos = new ArrayList<VideoInfoDto>();
 		ContentResolver cr = UnityPlayer.currentActivity.getContentResolver();
 		Cursor videoCursor = cr.query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, videoProjection, null, null, null);
@@ -44,7 +44,7 @@ public class VideoPluginManager {
 
 		Gson gson = new Gson();
 		String json = gson.toJson(videoInfoDtos);
-		Log(json);
+		UnityPlayer.UnitySendMessage(objectName, "OnVideoFileInfosLoaded", json);
 	}
 
 	private static String GetThumbnailPathForLocalFile(long fileId) {
