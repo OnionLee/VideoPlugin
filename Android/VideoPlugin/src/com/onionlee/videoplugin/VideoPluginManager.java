@@ -7,8 +7,13 @@ import com.onionlee.videoplugin.dto.VideoInfoDto;
 import com.unity3d.player.UnityPlayer;
 
 import android.content.ContentResolver;
+import android.content.Context;
 import android.database.Cursor;
+import android.media.AudioManager;
 import android.provider.MediaStore;
+import android.provider.Settings;
+import android.provider.Settings.SettingNotFoundException;
+import android.view.WindowManager;
 
 public class VideoPluginManager {
 	final public static String objectName = "__VIDEO_PLUGIN_MANAGER";
@@ -67,6 +72,48 @@ public class VideoPluginManager {
 		}
 
 		return null;
+	}
+
+	public static void SetVolume(int value) {
+
+		AudioManager am = (AudioManager) UnityPlayer.currentActivity.getSystemService(Context.AUDIO_SERVICE);
+		int volume = Math.max(Math.min(value, 15), 0);
+		am.setStreamVolume(AudioManager.STREAM_MUSIC, volume, AudioManager.FLAG_PLAY_SOUND);
+	}
+
+	public static void GetVolume() {
+		AudioManager am = (AudioManager) UnityPlayer.currentActivity.getSystemService(Context.AUDIO_SERVICE);
+		int volume = am.getStreamVolume(AudioManager.STREAM_MUSIC);
+		UnityPlayer.UnitySendMessage(objectName, "OnGetVolumeSucceed", String.valueOf(volume));
+	}
+
+	public static void SetBright(int value) {
+		ContentResolver cr = UnityPlayer.currentActivity.getContentResolver();
+		try {
+			if (Settings.System.getInt(cr, Settings.System.SCREEN_BRIGHTNESS_MODE) == 1) {
+				Settings.System.putInt(cr, Settings.System.SCREEN_BRIGHTNESS_MODE, 0);
+			}
+		} catch (SettingNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		Settings.System.putInt(cr, "screen_brightness", value);
+
+		WindowManager.LayoutParams myLayoutParameter = UnityPlayer.currentActivity.getWindow().getAttributes();
+		myLayoutParameter.screenBrightness = 1;
+		UnityPlayer.currentActivity.getWindow().setAttributes(myLayoutParameter);
+	}
+
+	public static void GetBright() {
+		ContentResolver cr = UnityPlayer.currentActivity.getContentResolver();
+		try {
+			int bright = Settings.System.getInt(cr, "screen_brightness");
+			UnityPlayer.UnitySendMessage(objectName, "OnGetBrightSucceed", String.valueOf(bright));
+		} catch (SettingNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public static void Log(String msg) {

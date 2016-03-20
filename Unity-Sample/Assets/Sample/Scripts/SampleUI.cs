@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.UI;
 
 public class SampleUI : MonoBehaviour {
 
@@ -12,19 +13,37 @@ public class SampleUI : MonoBehaviour {
 
 	private List<ListItem> listItems;
 
+	[SerializeField]
+	private Slider volumeBar;
+
+	[SerializeField]
+	private Slider brightBar;
+
 	private void Awake()
 	{
 		listItems = new List<ListItem>();
 
-		VideoPluginManager.Instance.VideoInfosLoaded += OnVideoInfosLoaded;
+		VideoPluginManager.Instance.LoadVideoInfosSucceed += OnLoadVideoInfosSucceed;
+		VideoPluginManager.Instance.GetVolumeSucceed += OnGetVolumeSucceed;
+		VideoPluginManager.Instance.GetBrightSucceed += OnGetBrightSucceed;
+
+		VideoPluginManager.Instance.GetVolume();
+		VideoPluginManager.Instance.GetBright();
 	}
 
 	private void OnDestroy()
 	{
-		VideoPluginManager.Instance.VideoInfosLoaded -= OnVideoInfosLoaded;
+		VideoPluginManager.Instance.LoadVideoInfosSucceed += OnLoadVideoInfosSucceed;
+		VideoPluginManager.Instance.GetVolumeSucceed += OnGetVolumeSucceed;
+		VideoPluginManager.Instance.GetBrightSucceed += OnGetBrightSucceed;
 	}
 
-	private void OnVideoInfosLoaded(System.Collections.Generic.List<VideoInfoDto> infos)
+	public void OnLoadButtonClicked()
+	{
+		VideoPluginManager.Instance.LoadVideoFileInfos();
+	}
+
+	private void OnLoadVideoInfosSucceed(System.Collections.Generic.List<VideoInfoDto> infos)
 	{
 		ClearItem();
 
@@ -44,7 +63,7 @@ public class SampleUI : MonoBehaviour {
 
 	private void ClearItem()
 	{
-		foreach(var item in listItems)
+		foreach (var item in listItems)
 		{
 			Destroy(item.gameObject);
 		}
@@ -52,8 +71,27 @@ public class SampleUI : MonoBehaviour {
 		listItems.Clear();
 	}
 
-	public void OnLoadButtonClicked()
+	private void OnGetVolumeSucceed(int value)
 	{
-		VideoPluginManager.Instance.LoadVideoFileInfos();
+		volumeBar.value = value;
+		volumeBar.maxValue = 15;
+	}
+
+	private void OnGetBrightSucceed(int value)
+	{
+		volumeBar.value = value;
+		volumeBar.maxValue = 255;
+	}
+
+	public void OnVolumeBarValueChanged(int value)
+	{
+		VideoPluginManager.Instance.SetVolume(value);
+		VideoPluginManager.Instance.GetVolume();
+	}
+
+	public void OnBrightBarValueChanged(int value)
+	{
+		VideoPluginManager.Instance.SetBright(value);
+		VideoPluginManager.Instance.GetBright();
 	}
 }
