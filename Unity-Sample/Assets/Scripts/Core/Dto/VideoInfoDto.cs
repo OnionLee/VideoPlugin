@@ -1,15 +1,19 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using Newtonsoft.Json;
 
-public class VideoInfoDto : MonoBehaviour {
+public class VideoInfoDto
+{
+	[JsonProperty("id")]
+	public long Id { get; private set; }
 
-	// Use this for initialization
-	void Start () {
-	
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
+	[JsonProperty("title")]
+	public string Title { get; private set; }
+
+	[JsonProperty("path")]
+	public string Path { get; private set; }
+
+	[JsonProperty("duration")]
+	public int Duration { get; private set; }
+
+	[JsonProperty("thumbPath")]
+	public string ThumbPath { get; private set; }
 }

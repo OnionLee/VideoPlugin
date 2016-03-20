@@ -2,6 +2,7 @@
 using System.Collections;
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 public class VideoPluginManager : MonoBehaviour
 {
@@ -49,9 +50,7 @@ public class VideoPluginManager : MonoBehaviour
 
 	public void OnVideoFileInfosLoaded(string json)
 	{
-		var infoList = new List<VideoInfoDto>();
-		//TODO json 변환
-		Debug.Log(json);
+		var infoList = JsonConvert.DeserializeObject<List<VideoInfoDto>>(json);
 		if (VideoInfosLoaded != null)
 		{
 			VideoInfosLoaded(infoList);
