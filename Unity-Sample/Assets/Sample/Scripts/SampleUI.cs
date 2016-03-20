@@ -14,6 +14,9 @@ public class SampleUI : MonoBehaviour {
 	private List<ListItem> listItems;
 
 	[SerializeField]
+	private Button loadButton;
+
+	[SerializeField]
 	private Slider volumeBar;
 
 	[SerializeField]
@@ -27,6 +30,10 @@ public class SampleUI : MonoBehaviour {
 		VideoPluginManager.Instance.GetVolumeSucceed += OnGetVolumeSucceed;
 		VideoPluginManager.Instance.GetBrightSucceed += OnGetBrightSucceed;
 
+		loadButton.onClick.AddListener(OnLoadButtonClicked);
+		volumeBar.onValueChanged.AddListener(OnVolumeBarValueChanged);
+		brightBar.onValueChanged.AddListener(OnBrightBarValueChanged);
+
 		VideoPluginManager.Instance.GetVolume();
 		VideoPluginManager.Instance.GetBright();
 	}
@@ -36,6 +43,10 @@ public class SampleUI : MonoBehaviour {
 		VideoPluginManager.Instance.LoadVideoInfosSucceed += OnLoadVideoInfosSucceed;
 		VideoPluginManager.Instance.GetVolumeSucceed += OnGetVolumeSucceed;
 		VideoPluginManager.Instance.GetBrightSucceed += OnGetBrightSucceed;
+
+		loadButton.onClick.RemoveListener(OnLoadButtonClicked);
+		volumeBar.onValueChanged.RemoveListener(OnVolumeBarValueChanged);
+		brightBar.onValueChanged.RemoveListener(OnBrightBarValueChanged);
 	}
 
 	public void OnLoadButtonClicked()
@@ -83,15 +94,15 @@ public class SampleUI : MonoBehaviour {
 		volumeBar.maxValue = 255;
 	}
 
-	public void OnVolumeBarValueChanged(int value)
+	public void OnVolumeBarValueChanged(float value)
 	{
-		VideoPluginManager.Instance.SetVolume(value);
+		VideoPluginManager.Instance.SetVolume((int)value);
 		VideoPluginManager.Instance.GetVolume();
 	}
 
-	public void OnBrightBarValueChanged(int value)
+	public void OnBrightBarValueChanged(float value)
 	{
-		VideoPluginManager.Instance.SetBright(value);
+		VideoPluginManager.Instance.SetBright((int)value);
 		VideoPluginManager.Instance.GetBright();
 	}
 }

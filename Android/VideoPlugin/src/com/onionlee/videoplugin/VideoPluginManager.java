@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import com.onionlee.videoplugin.dto.VideoInfoDto;
 import com.unity3d.player.UnityPlayer;
 
+import android.app.ActionBar.LayoutParams;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
@@ -13,6 +14,7 @@ import android.media.AudioManager;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.provider.Settings.SettingNotFoundException;
+import android.view.Window;
 import android.view.WindowManager;
 
 public class VideoPluginManager {
@@ -97,12 +99,13 @@ public class VideoPluginManager {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
-		Settings.System.putInt(cr, "screen_brightness", value);
-
-		WindowManager.LayoutParams myLayoutParameter = UnityPlayer.currentActivity.getWindow().getAttributes();
-		myLayoutParameter.screenBrightness = 1;
-		UnityPlayer.currentActivity.getWindow().setAttributes(myLayoutParameter);
+		
+		int brightness = Math.max(Math.min(value, 255), 0);
+		Window window = UnityPlayer.currentActivity.getWindow();
+		Settings.System.putInt(cr, Settings.System.SCREEN_BRIGHTNESS, brightness);
+        android.view.WindowManager.LayoutParams layoutpars = window.getAttributes();
+        layoutpars.screenBrightness = brightness / (float)255;
+        window.setAttributes(layoutpars);
 	}
 
 	public static void GetBright() {
