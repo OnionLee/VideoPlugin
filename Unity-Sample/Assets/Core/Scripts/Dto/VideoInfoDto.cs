@@ -11,6 +11,7 @@ public class VideoInfoDto
 	[JsonProperty("path")]
 	public string Path { get; private set; }
 
+	//밀리세컨드 단위입니다.
 	[JsonProperty("duration")]
 	public int Duration { get; private set; }
 
