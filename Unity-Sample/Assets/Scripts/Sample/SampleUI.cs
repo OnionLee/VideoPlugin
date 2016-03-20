@@ -13,7 +13,7 @@ public class SampleUI : MonoBehaviour {
 		Debug.Log("ok!!!");
 	}
 
-	public void OnGetVideoFilePaths()
+	public void OnLoadButtonClicked()
 	{
 		VideoPluginManager.Instance.LoadVideoFileInfos();
 	}
