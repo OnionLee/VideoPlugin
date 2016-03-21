@@ -19,8 +19,14 @@ import android.view.WindowManager;
 
 public class VideoPluginManager {
 	final public static String objectName = "__VIDEO_PLUGIN_MANAGER";
-	final public static String[] videoProjection = { MediaStore.Video.Media._ID, MediaStore.Video.Media.TITLE,
-			MediaStore.Video.Media.DATA, MediaStore.Video.Media.DURATION };
+	final public static String[] videoProjection = { 
+			MediaStore.Video.Media._ID, 
+			MediaStore.Video.Media.TITLE,
+			MediaStore.Video.Media.DATA, 
+			MediaStore.Video.Media.DURATION, 
+			MediaStore.Video.Media.DATE_ADDED,
+			MediaStore.Video.Media.DATE_MODIFIED };
+
 	final public static String[] thumbColumns = { MediaStore.Video.Thumbnails.DATA };
 
 	public static void LoadVideoFileInfos() {
@@ -33,7 +39,9 @@ public class VideoPluginManager {
 			int videoTitleCol = videoCursor.getColumnIndex(MediaStore.Video.Media.TITLE);
 			int videoPathCol = videoCursor.getColumnIndex(MediaStore.Video.Media.DATA);
 			int videoDurationCol = videoCursor.getColumnIndex(MediaStore.Video.Media.DURATION);
-
+			int videoAddedDateCol = videoCursor.getColumnIndex(MediaStore.Video.Media.DATE_ADDED);
+			int videoModifiedDateCol = videoCursor.getColumnIndex(MediaStore.Video.Media.DATE_MODIFIED);
+			
 			do {
 				VideoInfoDto dto = new VideoInfoDto();
 
@@ -42,7 +50,9 @@ public class VideoPluginManager {
 				dto.path = videoCursor.getString(videoPathCol);
 				dto.duration = videoCursor.getInt(videoDurationCol);
 				dto.thumbPath = GetThumbnailPathForLocalFile(dto.id);
-
+				dto.addedDate = videoCursor.getLong(videoAddedDateCol);
+				dto.modifiedDate = videoCursor.getLong(videoModifiedDateCol);
+				
 				videoInfoDtos.add(dto);
 			} while (videoCursor.moveToNext());
 
@@ -99,13 +109,13 @@ public class VideoPluginManager {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		int brightness = Math.max(Math.min(value, 255), 0);
 		Window window = UnityPlayer.currentActivity.getWindow();
 		Settings.System.putInt(cr, Settings.System.SCREEN_BRIGHTNESS, brightness);
-        android.view.WindowManager.LayoutParams layoutpars = window.getAttributes();
-        layoutpars.screenBrightness = brightness / (float)255;
-        window.setAttributes(layoutpars);
+		android.view.WindowManager.LayoutParams layoutpars = window.getAttributes();
+		layoutpars.screenBrightness = brightness / (float) 255;
+		window.setAttributes(layoutpars);
 	}
 
 	public static void GetBright() {

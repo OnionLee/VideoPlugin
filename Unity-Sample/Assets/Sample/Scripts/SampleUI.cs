@@ -33,7 +33,10 @@ public class SampleUI : MonoBehaviour {
 		loadButton.onClick.AddListener(OnLoadButtonClicked);
 		volumeBar.onValueChanged.AddListener(OnVolumeBarValueChanged);
 		brightBar.onValueChanged.AddListener(OnBrightBarValueChanged);
+	}
 
+	private void Start()
+	{
 		VideoPluginManager.Instance.GetVolume();
 		VideoPluginManager.Instance.GetBright();
 	}

@@ -6,4 +6,6 @@ public class VideoInfoDto {
 	public String path;
 	public int duration;
 	public String thumbPath;
+	public long addedDate;
+	public long modifiedDate;
 }

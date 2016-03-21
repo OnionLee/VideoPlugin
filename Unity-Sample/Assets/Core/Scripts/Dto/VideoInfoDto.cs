@@ -11,10 +11,18 @@ public class VideoInfoDto
 	[JsonProperty("path")]
 	public string Path { get; private set; }
 
-	//밀리세컨드 단위입니다.
+	//Millisecond
 	[JsonProperty("duration")]
 	public int Duration { get; private set; }
 
 	[JsonProperty("thumbPath")]
 	public string ThumbPath { get; private set; }
+
+	//TimeStamp
+	[JsonProperty("addedDate")]
+	public long AddedDate { get; private set; }
+
+	//TimeStamp
+	[JsonProperty("modifiedDate")]
+	public long ModifiedDate { get; private set; }
 }
