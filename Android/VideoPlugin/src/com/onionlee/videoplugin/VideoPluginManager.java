@@ -11,7 +11,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.media.AudioManager;
-import android.net.Uri;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.provider.Settings.SettingNotFoundException;
@@ -32,19 +31,8 @@ public class VideoPluginManager {
 
 	public static void LoadVideoFileInfos() {
 		ArrayList<VideoInfoDto> videoInfoDtos = new ArrayList<VideoInfoDto>();
-		
-		LoadVideoFileInfo(videoInfoDtos, MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
-		LoadVideoFileInfo(videoInfoDtos, MediaStore.Video.Media.INTERNAL_CONTENT_URI);
-
-		Gson gson = new Gson();
-		String json = gson.toJson(videoInfoDtos);
-		UnityPlayer.UnitySendMessage(objectName, "OnVideoFileInfosLoaded", json);
-	}
-	
-	public static void LoadVideoFileInfo(ArrayList<VideoInfoDto> videoInfoDtos, Uri uri)
-	{
 		ContentResolver cr = UnityPlayer.currentActivity.getContentResolver();
-		Cursor videoCursor = cr.query(uri, videoProjection, null, null, null);
+		Cursor videoCursor = cr.query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, videoProjection, null, null, null);
 
 		if (videoCursor != null && videoCursor.moveToFirst()) {
 			int videoIDCol = videoCursor.getColumnIndex(MediaStore.Video.Media._ID);
@@ -61,7 +49,7 @@ public class VideoPluginManager {
 				dto.title = videoCursor.getString(videoTitleCol);
 				dto.path = videoCursor.getString(videoPathCol);
 				dto.duration = videoCursor.getInt(videoDurationCol);
-				dto.thumbPath = GetThumbnailPathForLocalFile(dto.id, uri);
+				dto.thumbPath = GetThumbnailPathForLocalFile(dto.id);
 				dto.addedDate = videoCursor.getLong(videoAddedDateCol);
 				dto.modifiedDate = videoCursor.getLong(videoModifiedDateCol);
 				
@@ -70,16 +58,20 @@ public class VideoPluginManager {
 
 			videoCursor.close();
 		}
+
+		Gson gson = new Gson();
+		String json = gson.toJson(videoInfoDtos);
+		UnityPlayer.UnitySendMessage(objectName, "OnVideoFileInfosLoaded", json);
 	}
 
-	private static String GetThumbnailPathForLocalFile(long fileId, Uri uri) {
+	private static String GetThumbnailPathForLocalFile(long fileId) {
 		ContentResolver cr = UnityPlayer.currentActivity.getContentResolver();
-		MediaStore.Video.Thumbnails.getThumbnail(cr, fileId, MediaStore.Video.Thumbnails.FULL_SCREEN_KIND, null);
+		MediaStore.Video.Thumbnails.getThumbnail(cr, fileId, MediaStore.Video.Thumbnails.MICRO_KIND, null);
 
 		Cursor thumbCursor = null;
 		try {
 
-			thumbCursor = cr.query(uri, thumbColumns,
+			thumbCursor = cr.query(MediaStore.Video.Thumbnails.EXTERNAL_CONTENT_URI, thumbColumns,
 					MediaStore.Video.Thumbnails.VIDEO_ID + " = " + fileId, null, null);
 
 			if (thumbCursor.moveToFirst()) {
