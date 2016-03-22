@@ -19,6 +19,9 @@ public class ListItem : MonoBehaviour
 	[SerializeField]
 	private Text modifiedTime;
 
+	[SerializeField]
+	private Text path;
+
 	public void InitItem(VideoInfoDto info)
 	{
 		//IOS에서는 이 코드를 쓸 수 없습니다. (샘플 프로그램)
@@ -33,10 +36,10 @@ public class ListItem : MonoBehaviour
 			}
 		}
 
-		UpdateData(texture, info.Title, info.Duration, info.AddedDate, info.ModifiedDate);
+		UpdateData(texture, info.Title, info.Duration, info.AddedDate, info.ModifiedDate, info.Path);	
 	}
 
-	private void UpdateData(Texture2D texture, string title, int duration, long addedDate, long modifiedDate)
+	private void UpdateData(Texture2D texture, string title, int duration, long addedDate, long modifiedDate, string path)
 	{
 		var addedDateTime = TimeUtility.ToDateTime(addedDate);
 		var modifiedDateTime = TimeUtility.ToDateTime(modifiedDate);
@@ -45,6 +48,7 @@ public class ListItem : MonoBehaviour
 		this.title.text = title;
 		this.addedTime.text = addedDateTime.ToString("MM'/'dd'/'yyyy HH':'mm':'ss");
 		this.modifiedTime.text = modifiedDateTime.ToString("MM'/'dd'/'yyyy HH':'mm':'ss");
+		this.path.text = path;
 
 		TimeSpan durationTime = new TimeSpan(0, 0, duration / 1000);
 		this.duration.text = string.Format("{0:HH:mm:ss}", durationTime);
