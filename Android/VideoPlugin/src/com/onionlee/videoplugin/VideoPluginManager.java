@@ -110,7 +110,7 @@ public class VideoPluginManager {
 					String duration = rv.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
 					String date = rv.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DATE);
 					Bitmap bitmap = rv.getFrameAtTime();
-					String thumbPath = f.getParent() + f.getName() + ".png";
+					String thumbPath = f.getParent() + "/" + f.getName() + ".png";
 					boolean savedBitmap = SaveBitmapFile(thumbPath, bitmap);
 					
 					VideoInfoDto dto = new VideoInfoDto();
