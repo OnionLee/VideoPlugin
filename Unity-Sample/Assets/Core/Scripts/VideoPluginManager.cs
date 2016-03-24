@@ -6,7 +6,8 @@ using Newtonsoft.Json;
 
 public class VideoPluginManager : MonoBehaviour
 {
-	public event Action<List<VideoInfoDto>> LoadVideoInfosSucceed;
+	public event Action<List<VideoInfoDto>> LoadFromMediaSucceed;
+	public event Action<List<VideoInfoDto>> LoadFromDirectorySucceed;
 	public event Action<int> GetVolumeSucceed;
 	public event Action<int> GetBrightSucceed;
 
@@ -45,17 +46,32 @@ public class VideoPluginManager : MonoBehaviour
 	}
 
 	#region VideoInfo
-	public void LoadVideoFileInfos()
+	public void LoadFromMedia()
 	{
-		androidManagerClass.CallStatic("LoadVideoFileInfos");
+		androidManagerClass.CallStatic("LoadFromMedia");
 	}
 
-	public void OnVideoFileInfosLoaded(string json)
+	public void OnLoadFromMediaSucceed(string json)
 	{
 		var infoList = JsonConvert.DeserializeObject<List<VideoInfoDto>>(json);
-		if (LoadVideoInfosSucceed != null)
+		if (LoadFromMediaSucceed != null)
 		{
-			LoadVideoInfosSucceed(infoList);
+			LoadFromMediaSucceed(infoList);
+		}
+	}
+
+	public void LoadFromDirectory(string path)
+	{
+		androidManagerClass.CallStatic("LoadFromDirectory", path);
+	}
+
+	public void OnLoadFromDirectorySucceed(string json)
+	{
+		Debug.Log(json);
+		var infoList = JsonConvert.DeserializeObject<List<VideoInfoDto>>(json);
+		if (LoadFromDirectorySucceed != null)
+		{
+			LoadFromDirectorySucceed(infoList);
 		}
 	}
 	#endregion

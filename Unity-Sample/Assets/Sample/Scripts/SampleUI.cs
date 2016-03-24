@@ -26,7 +26,8 @@ public class SampleUI : MonoBehaviour {
 	{
 		listItems = new List<ListItem>();
 
-		VideoPluginManager.Instance.LoadVideoInfosSucceed += OnLoadVideoInfosSucceed;
+		VideoPluginManager.Instance.LoadFromMediaSucceed += OnLoadFromMediaSucceed;
+		VideoPluginManager.Instance.LoadFromDirectorySucceed += OnLoadFromDirectorySucceed;
 		VideoPluginManager.Instance.GetVolumeSucceed += OnGetVolumeSucceed;
 		VideoPluginManager.Instance.GetBrightSucceed += OnGetBrightSucceed;
 
@@ -43,9 +44,10 @@ public class SampleUI : MonoBehaviour {
 
 	private void OnDestroy()
 	{
-		VideoPluginManager.Instance.LoadVideoInfosSucceed += OnLoadVideoInfosSucceed;
-		VideoPluginManager.Instance.GetVolumeSucceed += OnGetVolumeSucceed;
-		VideoPluginManager.Instance.GetBrightSucceed += OnGetBrightSucceed;
+		VideoPluginManager.Instance.LoadFromMediaSucceed -= OnLoadFromMediaSucceed;
+		VideoPluginManager.Instance.LoadFromDirectorySucceed -= OnLoadFromDirectorySucceed;
+		VideoPluginManager.Instance.GetVolumeSucceed -= OnGetVolumeSucceed;
+		VideoPluginManager.Instance.GetBrightSucceed -= OnGetBrightSucceed;
 
 		loadButton.onClick.RemoveListener(OnLoadButtonClicked);
 		volumeBar.onValueChanged.RemoveListener(OnVolumeBarValueChanged);
@@ -54,10 +56,23 @@ public class SampleUI : MonoBehaviour {
 
 	public void OnLoadButtonClicked()
 	{
-		VideoPluginManager.Instance.LoadVideoFileInfos();
+		//특정경로 안의 모든 mp4파일 검색
+		VideoPluginManager.Instance.LoadFromDirectory(Application.persistentDataPath);
+		//미디어 스캐닝 된 파일들
+		//VideoPluginManager.Instance.LoadFromMediaSucceed();
 	}
 
-	private void OnLoadVideoInfosSucceed(System.Collections.Generic.List<VideoInfoDto> infos)
+	private void OnLoadFromMediaSucceed(List<VideoInfoDto> infos)
+	{
+		ClearItem();
+
+		foreach (var info in infos)
+		{
+			CreateItem(info);
+		}
+	}
+
+	private void OnLoadFromDirectorySucceed(List<VideoInfoDto> infos)
 	{
 		ClearItem();
 

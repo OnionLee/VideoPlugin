@@ -1,21 +1,28 @@
 package com.onionlee.videoplugin;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.TimeZone;
 
 import com.google.gson.Gson;
 import com.onionlee.videoplugin.dto.VideoInfoDto;
 import com.unity3d.player.UnityPlayer;
-
-import android.app.ActionBar.LayoutParams;
+import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.media.AudioManager;
+import android.media.MediaMetadataRetriever;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.provider.Settings.SettingNotFoundException;
 import android.view.Window;
-import android.view.WindowManager;
 
 public class VideoPluginManager {
 	final public static String objectName = "__VIDEO_PLUGIN_MANAGER";
@@ -29,7 +36,7 @@ public class VideoPluginManager {
 
 	final public static String[] thumbColumns = { MediaStore.Video.Thumbnails.DATA };
 
-	public static void LoadVideoFileInfos() {
+	public static void LoadFromMedia() {
 		ArrayList<VideoInfoDto> videoInfoDtos = new ArrayList<VideoInfoDto>();
 		ContentResolver cr = UnityPlayer.currentActivity.getContentResolver();
 		Cursor videoCursor = cr.query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, videoProjection, null, null, null);
@@ -61,7 +68,100 @@ public class VideoPluginManager {
 
 		Gson gson = new Gson();
 		String json = gson.toJson(videoInfoDtos);
-		UnityPlayer.UnitySendMessage(objectName, "OnVideoFileInfosLoaded", json);
+		UnityPlayer.UnitySendMessage(objectName, "OnLoadFromMediaSucceed", json);
+	}
+	
+	public static void LoadFromDirectory(String rootPath)
+	{
+		ArrayList<VideoInfoDto> videoInfoDtos = new ArrayList<VideoInfoDto>();
+		MediaMetadataRetriever rv = new MediaMetadataRetriever();
+		File rootFile = new File(rootPath);
+		
+		AddVideoInfo(rootFile, videoInfoDtos, rv, 0);
+		
+		Gson gson = new Gson();
+		String json = gson.toJson(videoInfoDtos);
+		UnityPlayer.UnitySendMessage(objectName, "OnLoadFromDirectorySucceed", json);
+	}
+	
+	@SuppressLint("SimpleDateFormat")
+	private static void AddVideoInfo(File root, ArrayList<VideoInfoDto> dtos, MediaMetadataRetriever rv, int index)
+	{
+		File[] list = root.listFiles(new FilenameFilter() {
+			
+			@Override
+			public boolean accept(File dir, String filename) {
+				// TODO Auto-generated method stub
+				return filename.endsWith(".mp4"); 
+			}
+		});
+		
+		for(File f : list)
+		{
+			if(f.isDirectory())
+			{
+				AddVideoInfo(f, dtos, rv, ++index);
+			}
+			else
+			{
+				try
+				{
+					rv.setDataSource(f.getPath());
+					String duration = rv.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+					String date = rv.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DATE);
+					Bitmap bitmap = rv.getFrameAtTime();
+					String thumbPath = f.getParent() + f.getName() + ".png";
+					boolean savedBitmap = SaveBitmapFile(thumbPath, bitmap);
+					
+					VideoInfoDto dto = new VideoInfoDto();
+					dto.id = index;
+					dto.title = f.getName();
+					dto.path = f.getPath();
+					if(duration != null)
+						dto.duration = Integer.parseInt(duration);
+					if(date != null)
+					{
+						SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd'T'HHmmss.SSS'Z'");
+						format.setTimeZone(TimeZone.getTimeZone("UTC"));
+						Date dateTime = format.parse(date);
+						dto.addedDate = dateTime.getTime() / 1000;
+						dto.modifiedDate = dateTime.getTime() / 1000;
+					}
+					
+					if(savedBitmap)
+						dto.thumbPath = thumbPath;
+					
+					dtos.add(dto);
+				}
+				catch(Exception e)
+				{
+					Log(e.getMessage());
+				}
+			}
+		}
+	}
+	
+	private static boolean SaveBitmapFile(String path, Bitmap bmp)
+	{
+		FileOutputStream out = null;
+		try {
+		    out = new FileOutputStream(path);
+		    bmp.compress(Bitmap.CompressFormat.PNG, 100, out); 
+		    return true;// bmp is your Bitmap instance
+		    // PNG is a lossless format, the compression factor (100) is ignored
+		} catch (Exception e) {
+		    e.printStackTrace();
+		} finally {
+		    try {
+		        if (out != null) {
+		            out.close();
+		        }
+		    } catch (IOException e) {
+		        e.printStackTrace();
+		    }
+		}
+		
+		 return false;
 	}
 
 	private static String GetThumbnailPathForLocalFile(long fileId) {
